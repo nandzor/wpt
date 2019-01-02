@@ -137,9 +137,8 @@ scheme host and port.""")
     test_selection_group.add_argument("--tag", action="append", dest="tags",
                                       help="Labels applied to tests to include in the run. "
                                            "Labels starting dir: are equivalent to top-level directories.")
-    test_selection_group.add_argument("--explicit-test-list", action="store_true",
+    test_selection_group.add_argument("--default-exclude", action="store_true",
                                       default=False,
-                                      dest="explicit_test_list",
                                       help="Only run the tests explicitly given in arguments. "
                                            "No tests will run if the list is empty, and the "
                                            "program will exit with status code 0.")

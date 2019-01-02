@@ -512,7 +512,7 @@ def setup_wptrunner(venv, prompt=True, install_browser=False, **kwargs):
         logger.info("Identified %s affected tests" % len(test_list))
         test_list = [os.path.relpath(item, wpt_root) for item in test_list]
         kwargs["test_list"] += test_list
-        kwargs["explicit_test_list"] = True
+        kwargs["default_exclude"] = True
 
     if install_browser and not kwargs["channel"]:
         logger.info("--install-browser is given but --channel is not set, default to nightly channel")
