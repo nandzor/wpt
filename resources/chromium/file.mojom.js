@@ -5,7 +5,7 @@
 'use strict';
 
 (function() {
-  var mojomId = 'url/mojom/url.mojom';
+  var mojomId = 'mojo/public/mojom/base/file.mojom';
   if (mojo.internal.isMojomLoaded(mojomId)) {
     console.warn('The following mojom is loaded multiple times: ' + mojomId);
     return;
@@ -16,27 +16,28 @@
   var codec = mojo.internal;
   var validator = mojo.internal;
 
-  var exports = mojo.internal.exposeNamespace('url.mojom');
+  var exports = mojo.internal.exposeNamespace('mojoBase.mojom');
 
 
 
-  function Url(values) {
+  function File(values) {
     this.initDefaults_();
     this.initFields_(values);
   }
 
 
-  Url.prototype.initDefaults_ = function() {
-    this.url = null;
+  File.prototype.initDefaults_ = function() {
+    this.fd = null;
+    this.async = false;
   };
-  Url.prototype.initFields_ = function(fields) {
+  File.prototype.initFields_ = function(fields) {
     for(var field in fields) {
         if (this.hasOwnProperty(field))
           this[field] = fields[field];
     }
   };
 
-  Url.validate = function(messageValidator, offset) {
+  File.validate = function(messageValidator, offset) {
     var err;
     err = messageValidator.validateStructHeader(offset, codec.kStructHeaderSize);
     if (err !== validator.validationError.NONE)
@@ -50,30 +51,42 @@
         return err;
 
 
-    // validate Url.url
-    err = messageValidator.validateStringPointer(offset + codec.kStructHeaderSize + 0, false)
+    // validate File.fd
+    err = messageValidator.validateHandle(offset + codec.kStructHeaderSize + 0, false)
     if (err !== validator.validationError.NONE)
         return err;
+
 
     return validator.validationError.NONE;
   };
 
-  Url.encodedSize = codec.kStructHeaderSize + 8;
+  File.encodedSize = codec.kStructHeaderSize + 8;
 
-  Url.decode = function(decoder) {
+  File.decode = function(decoder) {
     var packed;
-    var val = new Url();
+    var val = new File();
     var numberOfBytes = decoder.readUint32();
     var version = decoder.readUint32();
-    val.url = decoder.decodeStruct(codec.String);
+    val.fd = decoder.decodeStruct(codec.Handle);
+    packed = decoder.readUint8();
+    val.async = (packed >> 0) & 1 ? true : false;
+    decoder.skip(1);
+    decoder.skip(1);
+    decoder.skip(1);
     return val;
   };
 
-  Url.encode = function(encoder, val) {
+  File.encode = function(encoder, val) {
     var packed;
-    encoder.writeUint32(Url.encodedSize);
+    encoder.writeUint32(File.encodedSize);
     encoder.writeUint32(0);
-    encoder.encodeStruct(codec.String, val.url);
+    encoder.encodeStruct(codec.Handle, val.fd);
+    packed = 0;
+    packed |= (val.async & 1) << 0
+    encoder.writeUint8(packed);
+    encoder.skip(1);
+    encoder.skip(1);
+    encoder.skip(1);
   };
-  exports.Url = Url;
+  exports.File = File;
 })();
